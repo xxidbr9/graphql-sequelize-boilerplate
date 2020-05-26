@@ -30,7 +30,7 @@ export async function getStudentById(studentId) {
         return null;
     }
     getStudent.hobbies = fill.studentHobbies(getStudent);
-    await redisClient.setex(studentId, 3600, JSON.stringify(getStudent));
+    redisClient.setex(studentId, 3600, JSON.stringify(getStudent));
     return getStudent;
 }
 
@@ -53,7 +53,7 @@ export async function getAllStudents() {
         return [];
     }
     const result = fill.studentHobbies(listStudents, true);
-    await redisClient.setex("listStudents", 3600, JSON.stringify(result));
+    redisClient.setex("listStudents", 3600, JSON.stringify(result));
     return result;
 }
 
@@ -72,4 +72,44 @@ export async function createStudent(data) {
         });
     }
     return getStudentById(student.id);
+}
+
+export async function updateStudent(data){
+    const student = await Student.findOne({
+        where: {
+            id: data.id
+        }
+    });
+    if (_.isEmpty(student)) {
+        return null;
+    }
+    
+    const studentUpdate = await Student.update({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email
+    }, {
+        where: {
+            id: data.id
+        }
+    });
+
+    Student_hobbies.destroy({
+        where: {
+            studentId: data.id
+        },
+    });
+    const hobbies = data.hobbyList;
+    for (let i = 0; i < hobbies.length; i++) {
+        const item = hobbies[i];
+        await Student_hobbies.create({
+            studentId: student.id,
+            hobbiesId: item.id
+        });
+    }
+    if (studentUpdate){
+        await redisClient.del(data.id);
+        redisClient.del("listStudents");
+        return getStudentById(data.id);
+    }
 }

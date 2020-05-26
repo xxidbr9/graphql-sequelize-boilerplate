@@ -12,7 +12,7 @@ export const StudentResolvers = {
         }
     },
     Mutation: {
-        createStudent: async (root, args, context) => {
+        createStudent: async (_root, args, _context) => {
             const data = {
                 firstName: args.firstName,
                 lastName: args.lastName,
@@ -20,6 +20,16 @@ export const StudentResolvers = {
                 hobbyList: args.hobbyList
             }
             return await studentServices.createStudent(data);
+        },
+        updateStudent: async (_root, args, _context) => {
+            const data = {
+                firstName: args.firstName,
+                lastName: args.lastName,
+                email: args.email,
+                id: args.id,
+                hobbyList: args.hobbyList
+            }
+            return await studentServices.updateStudent(data);
         }
     }
 }

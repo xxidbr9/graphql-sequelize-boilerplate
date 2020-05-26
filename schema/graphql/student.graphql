@@ -5,6 +5,7 @@ extend type Query {
 
 extend type Mutation {
   createStudent(firstName: String!, lastName: String!, email: String!, hobbyList: [InputHobbies]!): Student!
+  updateStudent(id: Int!, firstName: String!, lastName: String!, email: String!, hobbyList: [InputHobbies]!): Student!
 }
 
 type Student {
